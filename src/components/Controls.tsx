@@ -87,6 +87,11 @@ const Icons = {
             <path d="M20.42 4.58a5 5 0 0 1 0 7.07l-8.42 8.42-8.42-8.42a5 5 0 1 1 7.07-7.07l1.35 1.35 1.35-1.35a5 5 0 0 1 7.07 0z" />
         </svg>
     ),
+    theme: (
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+        </svg>
+    ),
 };
 
 interface ControlsProps {
@@ -95,6 +100,7 @@ interface ControlsProps {
     onUndo: () => void;
     onNewGame: (layoutId?: string) => void;
     onShowStats: () => void;
+    onToggleTheme: () => void;
     canUndo: boolean;
     currentLayout: Layout;
     tilesRemaining: number;
@@ -111,6 +117,7 @@ export const Controls: React.FC<ControlsProps> = ({
     onUndo,
     onNewGame,
     onShowStats,
+    onToggleTheme,
     canUndo,
     currentLayout,
     tilesRemaining,
@@ -266,6 +273,14 @@ export const Controls: React.FC<ControlsProps> = ({
 
                 <button
                     className="game-button game-button-icon"
+                    onClick={onToggleTheme}
+                    title="Switch Theme"
+                >
+                    {Icons.theme}
+                </button>
+
+                <button
+                    className="game-button game-button-icon"
                     onClick={toggleMute}
                     title={isMuted ? 'Unmute' : 'Mute'}
                 >
@@ -285,4 +300,3 @@ export const Controls: React.FC<ControlsProps> = ({
 };
 
 export default Controls;
-

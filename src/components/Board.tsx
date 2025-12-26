@@ -107,31 +107,110 @@ export const Board: React.FC<BoardProps> = ({
         updateScale();
     }, [tiles, updateScale]);
 
+    // Active Materiality: Dynamic 3D Tilt based on cursor
+    useEffect(() => {
+        const handleGlobalMouseMove = (e: MouseEvent) => {
+            if (containerRef.current) {
+                const rect = containerRef.current.getBoundingClientRect();
+                const x = ((e.clientX - rect.left) / rect.width) * 100;
+                const y = ((e.clientY - rect.top) / rect.height) * 100;
+
+                // Set CSS variables for shine and tilt
+                containerRef.current.style.setProperty('--mouse-px', `${x}%`);
+                containerRef.current.style.setProperty('--mouse-py', `${y}%`);
+
+                const tiltX = ((e.clientX - (rect.left + rect.width / 2)) / (rect.width / 2)) * 6;
+                const tiltY = ((e.clientY - (rect.top + rect.height / 2)) / (rect.height / 2)) * -6;
+                containerRef.current.style.setProperty('--tilt-rx', `${tiltY}deg`);
+                containerRef.current.style.setProperty('--tilt-ry', `${tiltX}deg`);
+            }
+        };
+
+        window.addEventListener('mousemove', handleGlobalMouseMove);
+        return () => window.removeEventListener('mousemove', handleGlobalMouseMove);
+    }, []);
+
     const hintSet = useMemo(() => {
         if (!hintPair) return new Set<string>();
         return new Set(hintPair);
     }, [hintPair]);
 
+    // Calculate hint line coordinates
+    const hintLine = useMemo(() => {
+        if (!hintPair) return null;
+        const tile1 = tiles.find(t => t.id === hintPair[0]);
+        const tile2 = tiles.find(t => t.id === hintPair[1]);
+        if (!tile1 || !tile2) return null;
+
+        return {
+            x1: tile1.x * 46 + 23 + offsetX,
+            y1: tile1.y * 62 + 31 + offsetY,
+            x2: tile2.x * 46 + 23 + offsetX,
+            y2: tile2.y * 62 + 31 + offsetY,
+        };
+    }, [hintPair, tiles, offsetX, offsetY]);
+
     return (
         <div
             ref={containerRef}
             className="board-container"
+            style={{
+                perspective: '1200px',
+                '--tilt-rx': '0deg',
+                '--tilt-ry': '0deg',
+                '--mouse-px': '50%',
+                '--mouse-py': '50%',
+            } as React.CSSProperties}
         >
             <div
                 className="board-wrapper relative"
                 style={{
                     width: `${width}px`,
                     height: `${height}px`,
-                    transform: `scale(${scale})`,
+                    transform: `scale(${scale}) rotateX(var(--tilt-rx)) rotateY(var(--tilt-ry))`,
+                    transformStyle: 'preserve-3d',
                     transformOrigin: 'center center',
+                    transition: 'transform 0.1s ease-out',
                 }}
             >
                 <div
                     className="board-inner relative"
                     style={{
                         transform: `translate(${offsetX}px, ${offsetY}px)`,
+                        transformStyle: 'preserve-3d',
                     }}
                 >
+                    {/* Golden Thread Hint System */}
+                    {hintLine && (
+                        <svg className="absolute inset-0 pointer-events-none z-[1000] overflow-visible">
+                            <defs>
+                                <filter id="goldGlow">
+                                    <feGaussianBlur stdDeviation="3" result="blur" />
+                                    <feMerge>
+                                        <feMergeNode in="blur" />
+                                        <feMergeNode in="SourceGraphic" />
+                                    </feMerge>
+                                </filter>
+                                <linearGradient id="threadGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" stopColor="var(--color-imperial-gold)" stopOpacity="0" />
+                                    <stop offset="50%" stopColor="var(--color-imperial-gold)" stopOpacity="0.8" />
+                                    <stop offset="100%" stopColor="var(--color-imperial-gold)" stopOpacity="0" />
+                                </linearGradient>
+                            </defs>
+                            <line
+                                x1={hintLine.x1 - offsetX}
+                                y1={hintLine.y1 - offsetY}
+                                x2={hintLine.x2 - offsetX}
+                                y2={hintLine.y2 - offsetY}
+                                stroke="url(#threadGrad)"
+                                strokeWidth="3"
+                                strokeDasharray="10 5"
+                                filter="url(#goldGlow)"
+                                className="hint-line-pulse"
+                            />
+                        </svg>
+                    )}
+
                     {tiles
                         .filter(t => !t.isRemoved)
                         .map(tile => (

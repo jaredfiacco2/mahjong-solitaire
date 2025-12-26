@@ -11,10 +11,22 @@ import ParticleSystem from './components/ParticleSystem';
 import ComboDisplay from './components/ComboDisplay';
 import { useMobile } from './hooks/useMobile';
 import './index.css';
+import soundManager from './game/sounds';
 
 function App() {
   const { isMobile, isLandscape } = useMobile();
   const [initialLayoutSet, setInitialLayoutSet] = useState(false);
+  const [theme, setTheme] = useState<'ivory' | 'jade'>(() => {
+    return (localStorage.getItem('mahjong-theme') as 'ivory' | 'jade') || 'ivory';
+  });
+
+  // Apply theme to body
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('mahjong-theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => setTheme(prev => prev === 'ivory' ? 'jade' : 'ivory');
 
   const {
     gameState,
@@ -31,6 +43,16 @@ function App() {
     zoomLevel,
     setZoomLevel,
   } = useGameState(isMobile ? 'flat' : 'turtle');
+
+  // Handle ambient drone lifecycle
+  useEffect(() => {
+    // We import soundManager here or at top
+    if (!gameState.isComplete && !gameState.isStuck) {
+      soundManager.startDrone();
+    } else {
+      soundManager.stopDrone();
+    }
+  }, [gameState.isComplete, gameState.isStuck]);
 
   // Auto-switch to mobile layout on first load if on mobile
   useEffect(() => {
@@ -203,6 +225,7 @@ function App() {
         onUndo={undo}
         onNewGame={handleNewGame}
         onShowStats={() => setShowStats(true)}
+        onToggleTheme={toggleTheme}
         canUndo={canUndo}
         currentLayout={currentLayout}
         tilesRemaining={gameState.tilesRemaining}

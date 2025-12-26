@@ -4,13 +4,17 @@
 type SoundType = 'click' | 'match' | 'combo' | 'error' | 'shuffle' | 'win' | 'undo' | 'hint' | 'select';
 
 interface SoundManager {
-    play: (sound: SoundType) => void;
+    play: (sound: SoundType, options?: { pitch?: number; volume?: number }) => void;
     setMuted: (muted: boolean) => void;
     isMuted: () => boolean;
+    startDrone: () => void;
+    stopDrone: () => void;
 }
 
 let audioContext: AudioContext | null = null;
 let muted = false;
+let droneOsc: OscillatorNode | null = null;
+let droneGain: GainNode | null = null;
 
 // Initialize AudioContext on first user interaction
 function getAudioContext(): AudioContext {
@@ -179,102 +183,78 @@ function playChord(
 }
 
 // Sound definitions - Realistic mahjong tile sounds
-const sounds: Record<SoundType, () => void> = {
+const sounds: Record<SoundType, (pitch?: number) => void> = {
     click: () => {
-        // Soft tile tap
         playTileClick(1.0, 0.2);
     },
 
     select: () => {
-        // Tile pickup - lighter click with slight lift
         playTileClick(1.2, 0.25);
         playTone(600, 0.06, 'sine', 0.08, 0.02);
     },
 
-    match: () => {
+    match: (p = 1.0) => {
         // Two tiles clacking together - double impact
-        playTileClack(1.0, 0.35);
-        playTileClack(0.9, 0.25, 0.03);
-        // Pleasant chime overlay
-        playTone(880, 0.25, 'sine', 0.12, 0.05);
-        playTone(1320, 0.2, 'sine', 0.08, 0.08);
+        playTileClack(p, 0.35);
+        playTileClack(p * 0.9, 0.25, 0.03);
+        // Pleasant chime overlay - frequency scales with pitch option (combo level)
+        playTone(880 * p, 0.25, 'sine', 0.12, 0.05);
+        playTone(1320 * p, 0.2, 'sine', 0.08, 0.08);
     },
 
-    combo: () => {
+    combo: (p = 1.0) => {
         // Quick tile impacts with ascending chime
-        playTileClack(1.0, 0.3);
-        playTileClack(1.1, 0.25, 0.05);
-        playTileClack(1.2, 0.2, 0.1);
-        // Ascending tones
-        playTone(523, 0.12, 'sine', 0.15, 0.06);
-        playTone(659, 0.12, 'sine', 0.15, 0.1);
-        playTone(784, 0.15, 'sine', 0.18, 0.14);
+        playTileClack(p, 0.3);
+        playTileClack(p * 1.1, 0.25, 0.05);
+        playTileClack(p * 1.2, 0.2, 0.1);
+        // Ascending tones scaling with combo pitch
+        playTone(523 * p, 0.12, 'sine', 0.15, 0.06);
+        playTone(659 * p, 0.12, 'sine', 0.15, 0.1);
+        playTone(784 * p, 0.15, 'sine', 0.18, 0.14);
     },
 
     error: () => {
-        // Dull thud - blocked tile
         playTileClick(0.5, 0.15);
         playTone(150, 0.1, 'triangle', 0.08, 0.02);
     },
 
     hint: () => {
-        // Gentle double tap
         playTileClick(1.3, 0.15);
         playTileClick(1.4, 0.12, 0.08);
         playTone(1000, 0.08, 'sine', 0.08, 0.05);
     },
 
     shuffle: () => {
-        // Realistic tile shuffling - many tiles cascading
-        // First wave - tiles sliding
         for (let i = 0; i < 8; i++) {
-            const pitch = 0.7 + Math.random() * 0.6;
-            const vol = 0.08 + Math.random() * 0.06;
-            playTileClick(pitch, vol, i * 0.025);
+            playTileClick(0.7 + Math.random() * 0.6, 0.08 + Math.random() * 0.06, i * 0.025);
         }
-        // Second wave - more impacts overlapping
         for (let i = 0; i < 10; i++) {
-            const pitch = 0.8 + Math.random() * 0.5;
-            const vol = 0.06 + Math.random() * 0.05;
-            playTileClack(pitch, vol, 0.12 + i * 0.03);
+            playTileClack(0.8 + Math.random() * 0.5, 0.06 + Math.random() * 0.05, 0.12 + i * 0.03);
         }
-        // Third wave - settling
         for (let i = 0; i < 6; i++) {
-            const pitch = 0.9 + Math.random() * 0.4;
-            const vol = 0.04 + Math.random() * 0.03;
-            playTileClick(pitch, vol, 0.35 + i * 0.04);
+            playTileClick(0.9 + Math.random() * 0.4, 0.04 + Math.random() * 0.03, 0.35 + i * 0.04);
         }
-        // Final clacks
         playTileClack(1.0, 0.12, 0.55);
         playTileClack(0.95, 0.08, 0.6);
     },
 
     win: () => {
-        // Victory - tiles cascading with fanfare
-        // Initial tile cascade
         for (let i = 0; i < 5; i++) {
             playTileClack(1.0 + i * 0.05, 0.2 - i * 0.02, i * 0.08);
         }
-
-        // Rising melody
         const melody = [523, 659, 784, 880, 1047];
         melody.forEach((freq, i) => {
             playTone(freq, 0.3, 'sine', 0.2, 0.4 + i * 0.12);
         });
-
-        // Triumphant chord
         setTimeout(() => {
             playChord([523, 659, 784, 1047], 0.6, 'sine', 0.35, 10);
         }, 1000);
-
-        // Final resolution
         setTimeout(() => {
             playChord([261, 523, 659, 784, 1047], 1.0, 'sine', 0.3, 5);
         }, 1400);
     },
 
     undo: () => {
-        // Tiles sliding back
         playTileClick(0.9, 0.15);
         playTileClick(0.85, 0.12, 0.04);
         playTone(400, 0.08, 'triangle', 0.08, 0.02);
@@ -305,18 +285,54 @@ function saveMutePreference(value: boolean): void {
 muted = loadMutePreference();
 
 export const soundManager: SoundManager = {
-    play: (sound: SoundType) => {
+    play: (sound: SoundType, options?: { pitch?: number; volume?: number }) => {
         if (!muted) {
-            sounds[sound]?.();
+            sounds[sound]?.(options?.pitch);
         }
     },
 
     setMuted: (newMuted: boolean) => {
         muted = newMuted;
         saveMutePreference(newMuted);
+        if (newMuted) {
+            soundManager.stopDrone();
+        } else {
+            soundManager.startDrone();
+        }
     },
 
     isMuted: () => muted,
+
+    startDrone: () => {
+        if (muted || droneOsc) return;
+        try {
+            const ctx = getAudioContext();
+            droneOsc = ctx.createOscillator();
+            droneGain = ctx.createGain();
+
+            droneOsc.type = 'sine';
+            droneOsc.frequency.setValueAtTime(55, ctx.currentTime); // Low A
+
+            droneGain.gain.setValueAtTime(0, ctx.currentTime);
+            droneGain.gain.linearRampToValueAtTime(0.04, ctx.currentTime + 3);
+
+            droneOsc.connect(droneGain);
+            droneGain.connect(ctx.destination);
+            droneOsc.start();
+        } catch { }
+    },
+
+    stopDrone: () => {
+        if (droneGain) {
+            const ctx = getAudioContext();
+            droneGain.gain.linearRampToValueAtTime(0, ctx.currentTime + 1.5);
+            setTimeout(() => {
+                droneOsc?.stop();
+                droneOsc = null;
+                droneGain = null;
+            }, 1600);
+        }
+    }
 };
 
 export default soundManager;

@@ -13,7 +13,7 @@ interface Particle {
     maxLife: number;
     rotation: number;
     rotationSpeed: number;
-    type: 'circle' | 'star' | 'square';
+    type: 'shard' | 'dust';
 }
 
 interface MatchEffect {
@@ -39,27 +39,26 @@ export const ParticleSystem: React.FC<ParticleSystemProps> = ({ trigger, onCompl
 
     // Create explosion of particles at position
     const createExplosion = useCallback((x: number, y: number, combo: number) => {
-        const particleCount = 20 + combo * 10;
+        const particleCount = 24 + combo * 12;
         const newParticles: Particle[] = [];
 
         for (let i = 0; i < particleCount; i++) {
             const angle = (Math.PI * 2 * i) / particleCount + Math.random() * 0.5;
-            const speed = 4 + Math.random() * 6 + combo * 0.5;
-            const types: ('circle' | 'star' | 'square')[] = ['circle', 'star', 'square'];
+            const speed = 4 + Math.random() * 8 + combo * 0.5;
 
             newParticles.push({
-                id: Date.now() + i + Math.random(),
+                id: Math.random(),
                 x,
                 y,
                 vx: Math.cos(angle) * speed,
                 vy: Math.sin(angle) * speed,
                 color: COLORS[Math.floor(Math.random() * COLORS.length)],
-                size: 2 + Math.random() * 5 + combo * 0.2,
-                life: 80 + combo * 10,
-                maxLife: 80 + combo * 10,
+                size: 2 + Math.random() * 4 + combo * 0.2,
+                life: 90 + combo * 10,
+                maxLife: 90 + combo * 10,
                 rotation: Math.random() * 360,
-                rotationSpeed: (Math.random() - 0.5) * 25,
-                type: types[Math.floor(Math.random() * types.length)],
+                rotationSpeed: (Math.random() - 0.5) * 30,
+                type: Math.random() > 0.3 ? 'shard' : 'dust',
             });
         }
 
@@ -89,15 +88,21 @@ export const ParticleSystem: React.FC<ParticleSystemProps> = ({ trigger, onCompl
         const animate = () => {
             setParticles(prev =>
                 prev
-                    .map(p => ({
-                        ...p,
-                        x: p.x + p.vx,
-                        y: p.y + p.vy + 0.2, // softer gravity
-                        vy: p.vy + 0.1,
-                        vx: p.vx * 0.97,
-                        life: p.life - 1,
-                        rotation: p.rotation + p.rotationSpeed,
-                    }))
+                    .map(p => {
+                        const age = 1 - (p.life / p.maxLife);
+                        // Vortex spiraling effect
+                        const vortexForce = age * 0.1;
+
+                        return {
+                            ...p,
+                            x: p.x + p.vx + (p.vy * vortexForce),
+                            y: p.y + p.vy - (p.vx * vortexForce) + 0.15,
+                            vy: p.vy + 0.08,
+                            vx: p.vx * 0.96,
+                            life: p.life - 1,
+                            rotation: p.rotation + p.rotationSpeed,
+                        };
+                    })
                     .filter(p => p.life > 0)
             );
 
@@ -146,26 +151,25 @@ export const ParticleSystem: React.FC<ParticleSystemProps> = ({ trigger, onCompl
                     key={effect.id}
                     cx={effect.x}
                     cy={effect.y}
-                    r={20 + effect.scale * 60}
+                    r={20 + effect.scale * 80}
                     fill="none"
-                    stroke="#c5a059"
-                    strokeWidth={4 - effect.scale * 3}
+                    stroke="var(--color-imperial-gold)"
+                    strokeWidth={5 - effect.scale * 4}
                     opacity={effect.opacity}
                     filter="url(#boutiqueGlow)"
                 />
             ))}
 
-            {/* Gemstone Shards */}
+            {/* Shards & Dust */}
             {particles.map(p => {
                 const opacity = p.life / p.maxLife;
 
-                if (p.type === 'star') {
-                    // Shard polygon
+                if (p.type === 'shard') {
                     const points = [];
-                    const sides = 3 + Math.floor(Math.random() * 3);
+                    const sides = 3 + (Math.floor(p.id * 10) % 3);
                     for (let i = 0; i < sides; i++) {
                         const angle = (Math.PI * 2 * i) / sides + (p.rotation * Math.PI / 180);
-                        const r = p.size * (0.5 + Math.random() * 0.5);
+                        const r = p.size * (0.6 + (Math.sin(p.id * 100) * 0.4));
                         points.push(`${p.x + Math.cos(angle) * r},${p.y + Math.sin(angle) * r}`);
                     }
                     return (
@@ -180,15 +184,13 @@ export const ParticleSystem: React.FC<ParticleSystemProps> = ({ trigger, onCompl
                 }
 
                 return (
-                    <rect
+                    <circle
                         key={p.id}
-                        x={p.x - p.size / 2}
-                        y={p.y - p.size / 2}
-                        width={p.size}
-                        height={p.size / 2}
+                        cx={p.x}
+                        cy={p.y}
+                        r={p.size / 2}
                         fill={p.color}
-                        opacity={opacity}
-                        transform={`rotate(${p.rotation} ${p.x} ${p.y})`}
+                        opacity={opacity * 0.8}
                         filter="url(#boutiqueGlow)"
                     />
                 );

@@ -244,11 +244,13 @@ export function useGameState(initialLayoutId: string = 'turtle'): UseGameStateRe
                 const timeSinceLastMatch = now - prev.lastMatchTime;
                 const newCombo = timeSinceLastMatch < COMBO_TIMEOUT ? prev.combo + 1 : 1;
 
+                const pitch = 1.0 + (newCombo * 0.05);
+
                 // Play appropriate sound
                 if (newCombo >= 3) {
-                    soundManager.play('combo');
+                    soundManager.play('combo', { pitch });
                 } else {
-                    soundManager.play('match');
+                    soundManager.play('match', { pitch });
                 }
 
                 // Haptic feedback for mobile
