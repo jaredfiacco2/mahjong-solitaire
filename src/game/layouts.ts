@@ -724,64 +724,51 @@ const mobilePyramidLayout: Layout = {
 function generateMobilePyramidPositions(): LayoutPosition[] {
     const positions: LayoutPosition[] = [];
 
-    // Layer 0 (bottom) - 6x8 = 48 tiles
-    for (let y = 0; y < 8; y++) {
+    // Layer 0 (bottom) - 6x10 = 60 tiles - wide base
+    for (let y = 0; y < 10; y++) {
         for (let x = 0; x < 6; x++) {
             positions.push({ x, y, z: 0 });
         }
     }
 
-    // Layer 1 - 5x7 = 35 tiles (offset by 0.5 for stacking effect)
-    for (let y = 0; y < 7; y++) {
-        for (let x = 0; x < 5; x++) {
-            positions.push({ x: x + 0.5, y: y + 0.5, z: 1 });
+    // Layer 1 - 4x8 = 32 tiles - centered
+    for (let y = 1; y < 9; y++) {
+        for (let x = 1; x < 5; x++) {
+            positions.push({ x, y, z: 1 });
         }
     }
 
-    // Layer 2 - 4x6 = 24 tiles
-    for (let y = 0; y < 6; y++) {
-        for (let x = 0; x < 4; x++) {
-            positions.push({ x: x + 1, y: y + 1, z: 2 });
+    // Layer 2 - 4x6 = 24 tiles - centered
+    for (let y = 2; y < 8; y++) {
+        for (let x = 1; x < 5; x++) {
+            positions.push({ x, y, z: 2 });
         }
     }
 
-    // Layer 3 - 3x5 = 15 tiles
-    for (let y = 0; y < 5; y++) {
-        for (let x = 0; x < 3; x++) {
-            positions.push({ x: x + 1.5, y: y + 1.5, z: 3 });
+    // Layer 3 - 2x6 = 12 tiles - centered
+    for (let y = 2; y < 8; y++) {
+        for (let x = 2; x < 4; x++) {
+            positions.push({ x, y, z: 3 });
         }
     }
 
-    // Layer 4 - 2x4 = 8 tiles
-    for (let y = 0; y < 4; y++) {
-        for (let x = 0; x < 2; x++) {
-            positions.push({ x: x + 2, y: y + 2, z: 4 });
+    // Layer 4 - 2x4 = 8 tiles - centered
+    for (let y = 3; y < 7; y++) {
+        for (let x = 2; x < 4; x++) {
+            positions.push({ x, y, z: 4 });
         }
     }
 
-    // Layer 5 (top) - 2x3 = 6 tiles
-    for (let y = 0; y < 3; y++) {
-        for (let x = 0; x < 2; x++) {
-            positions.push({ x: x + 2, y: y + 2.5, z: 5 });
+    // Layer 5 (top) - 2x4 = 8 tiles - centered
+    for (let y = 3; y < 7; y++) {
+        for (let x = 2; x < 4; x++) {
+            positions.push({ x, y, z: 5 });
         }
-    }
-
-    // Layer 6 (peak) - 1x4 = 4 tiles
-    for (let y = 0; y < 4; y++) {
-        positions.push({ x: 2.5, y: y + 2, z: 6 });
-    }
-
-    // Fill remaining to 144 with additional stacking
-    while (positions.length < 144) {
-        const layer = Math.floor((positions.length - 136) / 4) + 7;
-        positions.push({ x: 2.5, y: 3, z: layer });
-        if (positions.length < 144) positions.push({ x: 2.5, y: 4, z: layer });
-        if (positions.length < 144) positions.push({ x: 3, y: 3.5, z: layer });
-        if (positions.length < 144) positions.push({ x: 2, y: 3.5, z: layer });
     }
 
     return positions.slice(0, 144);
 }
+
 
 // All available layouts - mobile-friendly layouts first
 export const LAYOUTS: Layout[] = [

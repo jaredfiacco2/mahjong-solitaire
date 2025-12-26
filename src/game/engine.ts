@@ -186,14 +186,6 @@ function assignSolvableTypes(positions: { x: number; y: number; z: number }[], a
         [matchingPairs[i], matchingPairs[j]] = [matchingPairs[j], matchingPairs[i]];
     }
 
-    // Helper function to calculate distance between positions
-    const getDistance = (p1: { x: number; y: number; z: number }, p2: { x: number; y: number; z: number }) => {
-        const dx = p1.x - p2.x;
-        const dy = p1.y - p2.y;
-        const dz = (p1.z - p2.z) * 2; // Weight z difference higher to spread across layers
-        return Math.sqrt(dx * dx + dy * dy + dz * dz);
-    };
-
     for (const [type1, type2] of matchingPairs) {
         const placeablePositions = availablePositions.filter(pos =>
             isPositionAvailable(pos, occupiedPositions)
@@ -201,22 +193,13 @@ function assignSolvableTypes(positions: { x: number; y: number; z: number }[], a
 
         if (placeablePositions.length < 2) return null; // Stuck
 
-        // Pick first position randomly
+        // Pick BOTH positions randomly for natural distribution
         const idx1 = Math.floor(Math.random() * placeablePositions.length);
         const pos1 = placeablePositions[idx1];
         placeablePositions.splice(idx1, 1);
 
-        // Pick second position to MAXIMIZE distance from first (makes game harder)
-        let bestIdx2 = 0;
-        let maxDistance = 0;
-        for (let i = 0; i < placeablePositions.length; i++) {
-            const dist = getDistance(pos1, placeablePositions[i]);
-            if (dist > maxDistance) {
-                maxDistance = dist;
-                bestIdx2 = i;
-            }
-        }
-        const pos2 = placeablePositions[bestIdx2];
+        const idx2 = Math.floor(Math.random() * placeablePositions.length);
+        const pos2 = placeablePositions[idx2];
 
         finalTiles.push({ id: generateTileId(), typeId: type1.id, ...pos1, isRemoved: false });
         finalTiles.push({ id: generateTileId(), typeId: type2.id, ...pos2, isRemoved: false });
@@ -228,6 +211,7 @@ function assignSolvableTypes(positions: { x: number; y: number; z: number }[], a
 
     return finalTiles;
 }
+
 
 // Greedy verification removed as it rejected non-greedily solvable boards
 // The reverse-simulation itself provides the winnability guarantee.
