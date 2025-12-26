@@ -157,58 +157,73 @@ function isPositionAvailable(
 }
 
 /**
- * Helper to assign tile types to positions solvally via reverse simulation.
+ * Helper to assign tile types to positions solvably via reverse simulation.
+ * Key insight: We place PAIRS of matching tiles in positions that are both "free"
+ * at the time of placement, working backwards from an empty board.
  */
 function assignSolvableTypes(positions: { x: number; y: number; z: number }[], availableTypes: TileType[]): TileInstance[] {
     const occupiedPositions: { x: number; y: number; z: number }[] = [];
     const availablePositions = [...positions];
-    const shuffledTypes = shuffleArray([...availableTypes]);
     const finalTiles: TileInstance[] = [];
 
-    // We need pairs, so total positions must be even
-    const pairsCount = Math.floor(positions.length / 2);
+    // Build pairs of matching types
+    // Group tiles by their matchGroup or id for matching
+    const typeGroups = new Map<string, TileType[]>();
+    for (const t of availableTypes) {
+        const key = t.matchGroup || t.id;
+        if (!typeGroups.has(key)) {
+            typeGroups.set(key, []);
+        }
+        typeGroups.get(key)!.push(t);
+    }
 
-    for (let p = 0; p < pairsCount; p++) {
+    // Create actual pairs (each pair = 2 tiles that match)
+    const matchingPairs: [TileType, TileType][] = [];
+    for (const [_key, group] of typeGroups) {
+        // Take tiles in pairs
+        while (group.length >= 2) {
+            const t1 = group.pop()!;
+            const t2 = group.pop()!;
+            matchingPairs.push([t1, t2]);
+        }
+    }
+
+    // Shuffle the pairs
+    for (let i = matchingPairs.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [matchingPairs[i], matchingPairs[j]] = [matchingPairs[j], matchingPairs[i]];
+    }
+
+    // Place each pair at positions that are both currently "free"
+    for (const [type1, type2] of matchingPairs) {
         const placeablePositions = availablePositions.filter(pos =>
             isPositionAvailable(pos, occupiedPositions)
         );
 
-        if (placeablePositions.length < 2) {
-            // Fallback: If layout prevents perfect reverse-sim, just take remaining
-            if (availablePositions.length >= 2) {
-                const p1 = availablePositions.pop()!;
-                const p2 = availablePositions.pop()!;
-                const t1 = shuffledTypes.pop()!;
-                const t2 = shuffledTypes.pop()!;
-                finalTiles.push({ id: generateTileId(), typeId: t1.id, ...p1, isRemoved: false });
-                finalTiles.push({ id: generateTileId(), typeId: t2.id, ...p2, isRemoved: false });
-            }
-            continue;
+        if (placeablePositions.length >= 2) {
+            // Pick two random free positions
+            const idx1 = Math.floor(Math.random() * placeablePositions.length);
+            const pos1 = placeablePositions[idx1];
+            placeablePositions.splice(idx1, 1);
+
+            const idx2 = Math.floor(Math.random() * placeablePositions.length);
+            const pos2 = placeablePositions[idx2];
+
+            // Assign the MATCHING pair to these positions
+            finalTiles.push({ id: generateTileId(), typeId: type1.id, ...pos1, isRemoved: false });
+            finalTiles.push({ id: generateTileId(), typeId: type2.id, ...pos2, isRemoved: false });
+
+            occupiedPositions.push(pos1, pos2);
+            availablePositions.splice(availablePositions.indexOf(pos1), 1);
+            availablePositions.splice(availablePositions.indexOf(pos2), 1);
+        } else if (availablePositions.length >= 2) {
+            // Fallback: take any two remaining positions
+            const pos1 = availablePositions.pop()!;
+            const pos2 = availablePositions.pop()!;
+            finalTiles.push({ id: generateTileId(), typeId: type1.id, ...pos1, isRemoved: false });
+            finalTiles.push({ id: generateTileId(), typeId: type2.id, ...pos2, isRemoved: false });
+            occupiedPositions.push(pos1, pos2);
         }
-
-        const idx1 = Math.floor(Math.random() * placeablePositions.length);
-        const pos1 = placeablePositions[idx1];
-        placeablePositions.splice(idx1, 1);
-
-        const idx2 = Math.floor(Math.random() * placeablePositions.length);
-        const pos2 = placeablePositions[idx2];
-
-        const type1 = shuffledTypes.pop()!;
-        const type2 = shuffledTypes.pop()!;
-
-        finalTiles.push({ id: generateTileId(), typeId: type1.id, ...pos1, isRemoved: false });
-        finalTiles.push({ id: generateTileId(), typeId: type2.id, ...pos2, isRemoved: false });
-
-        occupiedPositions.push(pos1, pos2);
-        availablePositions.splice(availablePositions.indexOf(pos1), 1);
-        availablePositions.splice(availablePositions.indexOf(pos2), 1);
-    }
-
-    // Handle any odd one out (shouldn't happen with 144 tiles)
-    if (availablePositions.length > 0 && shuffledTypes.length > 0) {
-        const pos = availablePositions[0];
-        const type = shuffledTypes[0];
-        finalTiles.push({ id: generateTileId(), typeId: type.id, ...pos, isRemoved: false });
     }
 
     return finalTiles;
@@ -291,16 +306,6 @@ export function undoMove(
     previousTiles: TileInstance[]
 ): TileInstance[] {
     return previousTiles;
-}
-
-// Fisher-Yates shuffle
-function shuffleArray<T>(array: T[]): T[] {
-    const arr = [...array];
-    for (let i = arr.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [arr[i], arr[j]] = [arr[j], arr[i]];
-    }
-    return arr;
 }
 
 /**
