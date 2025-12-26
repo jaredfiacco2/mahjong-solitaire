@@ -124,7 +124,7 @@ function App() {
 
   return (
     <div
-      className={`app min-h-screen flex flex-col pt-16 pb-20 ${screenShake ? 'screen-shake' : ''} ${isMobile ? 'mobile-mode' : ''} ${isLandscape ? 'landscape' : 'portrait'}`}
+      className={`app min-h-screen flex flex-col pt-safe pb-safe ${screenShake ? 'screen-shake' : ''} ${isMobile ? 'mobile-mode' : ''} ${isLandscape ? 'landscape' : 'portrait'}`}
       style={{
         // Screen shake animation
         animation: screenShake ? 'shake 0.2s ease-in-out' : 'none',

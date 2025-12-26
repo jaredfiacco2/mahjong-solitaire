@@ -107,27 +107,48 @@ export const Board: React.FC<BoardProps> = ({
         updateScale();
     }, [tiles, updateScale]);
 
-    // Active Materiality: Dynamic 3D Tilt based on cursor
+    // Active Materiality: Dynamic 3D Tilt
     useEffect(() => {
+        // Desktop: Subtle mouse-reactive tilt (disabled on touch to prevent friction)
         const handleGlobalMouseMove = (e: MouseEvent) => {
-            if (containerRef.current) {
+            if (containerRef.current && !('ontouchstart' in window)) {
                 const rect = containerRef.current.getBoundingClientRect();
                 const x = ((e.clientX - rect.left) / rect.width) * 100;
                 const y = ((e.clientY - rect.top) / rect.height) * 100;
 
-                // Set CSS variables for shine and tilt
                 containerRef.current.style.setProperty('--mouse-px', `${x}%`);
                 containerRef.current.style.setProperty('--mouse-py', `${y}%`);
 
-                const tiltX = ((e.clientX - (rect.left + rect.width / 2)) / (rect.width / 2)) * 1.5;
-                const tiltY = ((e.clientY - (rect.top + rect.height / 2)) / (rect.height / 2)) * -1.5;
+                const tiltX = ((e.clientX - (rect.left + rect.width / 2)) / (rect.width / 2)) * 0.75;
+                const tiltY = ((e.clientY - (rect.top + rect.height / 2)) / (rect.height / 2)) * -0.75;
                 containerRef.current.style.setProperty('--tilt-rx', `${tiltY}deg`);
                 containerRef.current.style.setProperty('--tilt-ry', `${tiltX}deg`);
             }
         };
 
+        // Mobile: Extremely subtle gyro tilt for "Physical Asset" feel
+        const handleOrientation = (e: DeviceOrientationEvent) => {
+            if (containerRef.current && e.beta !== null && e.gamma !== null) {
+                // beta (-180 to 180): front-back tilt
+                // gamma (-90 to 90): left-right tilt
+                // Map to very subtle degrees (max 1.5deg)
+                const rx = Math.max(-1.5, Math.min(1.5, (e.beta - 45) / 10)); // Assume ~45deg holding angle
+                const ry = Math.max(-1.5, Math.min(1.5, e.gamma / 10));
+
+                containerRef.current.style.setProperty('--tilt-rx', `${rx}deg`);
+                containerRef.current.style.setProperty('--tilt-ry', `${ry}deg`);
+            }
+        };
+
         window.addEventListener('mousemove', handleGlobalMouseMove);
-        return () => window.removeEventListener('mousemove', handleGlobalMouseMove);
+        if (window.DeviceOrientationEvent) {
+            window.addEventListener('deviceorientation', handleOrientation);
+        }
+
+        return () => {
+            window.removeEventListener('mousemove', handleGlobalMouseMove);
+            window.removeEventListener('deviceorientation', handleOrientation);
+        };
     }, []);
 
     const hintSet = useMemo(() => {
