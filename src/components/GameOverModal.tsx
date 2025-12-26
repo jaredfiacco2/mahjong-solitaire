@@ -20,15 +20,6 @@ const ShuffleIcon = () => (
     </svg>
 );
 
-const NewGameIcon = () => (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="3" y="3" width="7" height="7" rx="1" />
-        <rect x="14" y="3" width="7" height="7" rx="1" />
-        <rect x="14" y="14" width="7" height="7" rx="1" />
-        <rect x="3" y="14" width="7" height="7" rx="1" />
-    </svg>
-);
-
 interface GameOverModalProps {
     onShuffle: () => void;
     onNewGame: () => void;
@@ -42,39 +33,34 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
         <div className="modal-overlay">
             <div className="modal-content text-center">
                 {/* Animated warning icon */}
-                <div className="text-[var(--color-accent-red)] mb-4 flex justify-center" style={{ animation: 'winBounce 0.5s ease-out' }}>
+                <div className="text-[var(--color-imperial-gold)] mb-6 flex justify-center" style={{ animation: 'winBounce 0.5s ease-out' }}>
                     <AlertIcon />
                 </div>
 
-                <h2 className="text-2xl font-bold mb-2" style={{
-                    background: 'linear-gradient(135deg, #ff5252 0%, #ff1744 100%)',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                    backgroundClip: 'text',
-                }}>
-                    No Moves Left
+                <h2 className="text-3xl font-bold tracking-tight mb-4 text-white">
+                    NO MOVES LEFT
                 </h2>
 
-                <p className="text-[var(--color-text-secondary)] mb-6">
+                <p className="text-white/60 mb-8 leading-relaxed">
                     There are no more matching pairs available.
                     <br />
-                    <span className="text-sm text-[var(--color-text-muted)]">
-                        Try shuffling the board or start a new game.
+                    <span className="text-sm font-medium">
+                        Shuffle the boutique set or start a new game.
                     </span>
                 </p>
 
-                <div className="flex gap-3">
+                <div className="flex gap-4">
                     <button
-                        className="game-button flex-1 py-4 text-lg flex items-center justify-center gap-2"
+                        className="game-button flex-1 py-4 text-white/60 hover:text-white border-white/10"
                         onClick={onShuffle}
                     >
-                        <ShuffleIcon /> Shuffle
+                        <ShuffleIcon /> SHUFFLE
                     </button>
                     <button
-                        className="game-button game-button-primary flex-1 py-4 text-lg flex items-center justify-center gap-2"
+                        className="game-button flex-1 py-4 bg-[var(--color-imperial-gold)] text-black border-none font-bold"
                         onClick={onNewGame}
                     >
-                        <NewGameIcon /> New Game
+                        NEW GAME
                     </button>
                 </div>
             </div>

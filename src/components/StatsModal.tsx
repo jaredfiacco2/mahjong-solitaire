@@ -31,12 +31,6 @@ const TrashIcon = () => (
     </svg>
 );
 
-const CloseIcon = () => (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <polyline points="20 6 9 17 4 12" />
-    </svg>
-);
-
 interface StatsModalProps {
     statistics: Statistics;
     onClose: () => void;
@@ -69,43 +63,38 @@ export const StatsModal: React.FC<StatsModalProps> = ({
             <div className="modal-content max-w-md max-h-[80vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
                 {/* Header */}
                 <div className="text-center mb-6">
-                    <span className="text-[var(--color-accent-gold)] mb-2 block flex justify-center">
+                    <span className="text-[var(--color-imperial-gold)] mb-2 block flex justify-center">
                         <StatsIcon />
                     </span>
-                    <h2 className="text-2xl font-bold" style={{
-                        background: 'linear-gradient(135deg, var(--color-accent-gold) 0%, #ffeb3b 100%)',
-                        WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent',
-                        backgroundClip: 'text',
-                    }}>
-                        Statistics
+                    <h2 className="text-2xl font-bold tracking-tight text-white">
+                        STATISTICS
                     </h2>
                 </div>
 
                 {/* Overall stats - large numbers */}
                 <div className="grid grid-cols-3 gap-4 mb-6">
-                    <div className="text-center p-4 rounded-xl bg-black/20">
-                        <div className="text-3xl font-bold text-[var(--color-accent-cyan)]">
+                    <div className="text-center p-4 rounded-xl bg-white/5 border border-white/5">
+                        <div className="text-3xl font-bold text-white">
                             {statistics.totalGamesPlayed}
                         </div>
-                        <div className="text-xs text-[var(--color-text-muted)] uppercase tracking-wider mt-1">
+                        <div className="text-[10px] text-white/40 uppercase font-bold tracking-widest mt-1">
                             Played
                         </div>
                     </div>
-                    <div className="text-center p-4 rounded-xl bg-black/20">
-                        <div className="text-3xl font-bold text-[var(--color-accent-emerald)]">
+                    <div className="text-center p-4 rounded-xl bg-white/5 border border-white/5">
+                        <div className="text-3xl font-bold text-[var(--color-imperial-gold)]">
                             {statistics.totalGamesWon}
                         </div>
-                        <div className="text-xs text-[var(--color-text-muted)] uppercase tracking-wider mt-1">
+                        <div className="text-[10px] text-white/40 uppercase font-bold tracking-widest mt-1">
                             Won
                         </div>
                     </div>
-                    <div className="text-center p-4 rounded-xl bg-black/20">
-                        <div className="text-3xl font-bold text-[var(--color-accent-gold)]">
+                    <div className="text-center p-4 rounded-xl bg-white/5 border border-white/5">
+                        <div className="text-3xl font-bold text-white">
                             {overallWinRate}%
                         </div>
-                        <div className="text-xs text-[var(--color-text-muted)] uppercase tracking-wider mt-1">
-                            Win Rate
+                        <div className="text-[10px] text-white/40 uppercase font-bold tracking-widest mt-1">
+                            Rate
                         </div>
                     </div>
                 </div>
@@ -127,9 +116,9 @@ export const StatsModal: React.FC<StatsModalProps> = ({
                         return (
                             <div
                                 key={layout.id}
-                                className="p-3 rounded-xl"
+                                className="p-3 rounded-xl border border-white/5"
                                 style={{
-                                    background: 'linear-gradient(145deg, rgba(26, 47, 79, 0.5) 0%, rgba(17, 34, 64, 0.5) 100%)',
+                                    background: 'rgba(255, 255, 255, 0.02)',
                                 }}
                             >
                                 <div className="flex items-center justify-between mb-2">
@@ -145,14 +134,13 @@ export const StatsModal: React.FC<StatsModalProps> = ({
                                 </div>
 
                                 {/* Win rate progress bar */}
-                                <div className="h-1.5 rounded-full bg-black/30 overflow-hidden">
+                                <div className="h-1 rounded-full bg-white/5 overflow-hidden">
                                     <div
                                         className="h-full rounded-full transition-all duration-500"
                                         style={{
                                             width: `${winRate}%`,
-                                            background: winRate >= 50
-                                                ? 'linear-gradient(90deg, var(--color-accent-emerald) 0%, var(--color-accent-cyan) 100%)'
-                                                : 'linear-gradient(90deg, var(--color-accent-gold) 0%, #ff9800 100%)',
+                                            background: 'var(--color-imperial-gold)',
+                                            boxShadow: '0 0 10px rgba(197, 160, 89, 0.4)'
                                         }}
                                     />
                                 </div>
@@ -164,16 +152,16 @@ export const StatsModal: React.FC<StatsModalProps> = ({
                 {/* Action buttons */}
                 <div className="flex gap-3">
                     <button
-                        className="game-button flex-1 text-[var(--color-accent-red)] flex items-center justify-center gap-2"
+                        className="game-button flex-1 text-white/40 hover:text-[var(--color-imperial-red)] flex items-center justify-center gap-2 border-white/10"
                         onClick={onReset}
                     >
-                        <TrashIcon /> Reset
+                        <TrashIcon /> RESET
                     </button>
                     <button
-                        className="game-button game-button-primary flex-1 flex items-center justify-center gap-2"
+                        className="game-button flex-1 flex items-center justify-center gap-2 bg-[var(--color-imperial-gold)] text-black border-none font-bold"
                         onClick={onClose}
                     >
-                        <CloseIcon /> Close
+                        DONE
                     </button>
                 </div>
             </div>

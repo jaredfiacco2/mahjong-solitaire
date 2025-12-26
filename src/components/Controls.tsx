@@ -69,6 +69,24 @@ const Icons = {
             <polyline points="20 6 9 17 4 12" />
         </svg>
     ),
+    timer: (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <polyline points="12 6 12 12 16 14" />
+        </svg>
+    ),
+    tiles: (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+            <path d="M3 9h18" />
+            <path d="M9 21V9" />
+        </svg>
+    ),
+    matches: (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M20.42 4.58a5 5 0 0 1 0 7.07l-8.42 8.42-8.42-8.42a5 5 0 1 1 7.07-7.07l1.35 1.35 1.35-1.35a5 5 0 0 1 7.07 0z" />
+        </svg>
+    ),
 };
 
 interface ControlsProps {
@@ -142,17 +160,26 @@ export const Controls: React.FC<ControlsProps> = ({
                     <div className="stats-panel glass-hud">
                         <div className="stat-group">
                             <span className="stat-value">{formatTime(elapsedTime)}</span>
-                            <span className="stat-label">Elapsed</span>
+                            <div className="flex items-center gap-1 opacity-50 mt-1">
+                                {Icons.timer}
+                                <span className="stat-label">Time</span>
+                            </div>
                         </div>
-                        <div className="divider-v"></div>
+                        <div className="divider-v" style={{ height: '32px' }}></div>
                         <div className="stat-group">
                             <span className="stat-value">{tilesRemaining}</span>
-                            <span className="stat-label">Remain</span>
+                            <div className="flex items-center gap-1 opacity-50 mt-1">
+                                {Icons.tiles}
+                                <span className="stat-label">Tiles</span>
+                            </div>
                         </div>
-                        <div className="divider-v"></div>
+                        <div className="divider-v" style={{ height: '32px' }}></div>
                         <div className="stat-group">
                             <span className="stat-value">{matchesMade}</span>
-                            <span className="stat-label">Matches</span>
+                            <div className="flex items-center gap-1 opacity-50 mt-1">
+                                {Icons.matches}
+                                <span className="stat-label">Match</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -207,10 +234,9 @@ export const Controls: React.FC<ControlsProps> = ({
                             {/* Menu */}
                             <div className="absolute bottom-full mb-3 left-1/2 -translate-x-1/2 p-2 rounded-2xl z-50 min-w-[200px] max-h-[60vh] overflow-y-auto"
                                 style={{
-                                    background: 'linear-gradient(145deg, rgba(26, 47, 79, 0.98) 0%, rgba(17, 34, 64, 0.99) 100%)',
-                                    backdropFilter: 'blur(16px)',
-                                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                                    boxShadow: '0 12px 40px rgba(0, 0, 0, 0.5)',
+                                    background: 'var(--color-bg-secondary)',
+                                    border: '1px solid rgba(197, 160, 89, 0.3)',
+                                    boxShadow: '0 12px 40px rgba(0, 0, 0, 0.6)',
                                 }}>
                                 <div className="text-xs text-[var(--color-text-muted)] uppercase tracking-wider px-3 py-2 font-medium">
                                     Select Layout
@@ -219,8 +245,8 @@ export const Controls: React.FC<ControlsProps> = ({
                                     <button
                                         key={layout.id}
                                         className={`w-full px-4 py-3 text-left rounded-xl transition-all duration-200 flex items-center justify-between ${layout.id === currentLayout.id
-                                            ? 'bg-[var(--color-jade)] text-white shadow-lg'
-                                            : 'hover:bg-white/10'
+                                            ? 'bg-[var(--color-accent-blue)] text-white shadow-lg'
+                                            : 'hover:bg-white/5 active:bg-white/10'
                                             }`}
                                         onClick={() => {
                                             onNewGame(layout.id);

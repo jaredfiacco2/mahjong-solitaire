@@ -32,13 +32,12 @@ interface WinCelebrationProps {
 }
 
 const CONFETTI_COLORS = [
-    '#ffd54f', '#ff6d00', '#ff1744', '#d500f9',
-    '#651fff', '#00e676', '#00bcd4', '#2979ff'
+    '#c5a059', '#d4af37', '#ffffff', '#e5e5ea',
+    '#b8860b', '#ffd700', '#f5f5f7', '#ffffff'
 ];
 
 const FIREWORK_COLORS = [
-    '#ffd54f', '#ff6d00', '#ff5252', '#e040fb',
-    '#7c4dff', '#00e676', '#00bcd4', '#448aff'
+    '#c5a059', '#d4af37', '#ffffff', '#e5e5ea'
 ];
 
 // SVG Icons
@@ -210,8 +209,8 @@ export const WinCelebration: React.FC<WinCelebrationProps> = ({
             {/* Win message */}
             {showContent && (
                 <div className="relative text-center p-8 z-10" style={{ animation: 'modalSlideIn 0.5s ease-out' }}>
-                    <h1 className="win-title">
-                        Victory!
+                    <h1 className="win-title mb-2 text-6xl tracking-tighter italic font-black text-white">
+                        VICTORY
                     </h1>
 
                     {/* Star rating */}
@@ -231,35 +230,35 @@ export const WinCelebration: React.FC<WinCelebrationProps> = ({
                     </div>
                     <p className="text-xl text-[var(--color-accent-gold)] font-semibold mb-6">{rating.text}</p>
 
-                    <div className="stats-panel mx-auto mb-8 justify-center inline-flex">
-                        <div className="stat-item">
-                            <span className="stat-value text-3xl">{score.toLocaleString()}</span>
-                            <span className="stat-label">Score</span>
+                    <div className="stats-panel glass-hud mx-auto mb-10 justify-center inline-flex border-none shadow-none bg-transparent">
+                        <div className="stat-group">
+                            <span className="stat-value text-4xl">{score.toLocaleString()}</span>
+                            <span className="stat-label">SCORE</span>
                         </div>
-                        <div className="w-px h-10 bg-white/10 mx-4" />
-                        <div className="stat-item">
-                            <span className="stat-value text-3xl">{formatTime(elapsedTime)}</span>
-                            <span className="stat-label">Time</span>
+                        <div className="divider-v h-10 mx-6 opacity-10" />
+                        <div className="stat-group">
+                            <span className="stat-value text-4xl">{formatTime(elapsedTime)}</span>
+                            <span className="stat-label">TIME</span>
                         </div>
-                        <div className="w-px h-10 bg-white/10 mx-4" />
-                        <div className="stat-item">
-                            <span className="stat-value text-3xl">{matchesMade}</span>
-                            <span className="stat-label">Matches</span>
+                        <div className="divider-v h-10 mx-6 opacity-10" />
+                        <div className="stat-group">
+                            <span className="stat-value text-4xl">{matchesMade}</span>
+                            <span className="stat-label">MATCHES</span>
                         </div>
                     </div>
 
                     <div className="flex gap-4 justify-center flex-wrap">
                         <button
-                            className="game-button game-button-primary text-lg px-8 py-4 flex items-center gap-2"
+                            className="game-button bg-[var(--color-imperial-gold)] text-black border-none font-bold text-lg px-8 py-4 flex items-center gap-2"
                             onClick={onPlayAgain}
                         >
-                            <PlayIcon /> Play Again
+                            <PlayIcon /> PLAY AGAIN
                         </button>
                         <button
-                            className="game-button text-lg px-8 py-4 flex items-center gap-2"
+                            className="game-button text-white/60 hover:text-white text-lg px-8 py-4 flex items-center gap-2 border-white/10"
                             onClick={onChangeLayout}
                         >
-                            <RefreshIcon /> Change Layout
+                            <RefreshIcon /> NEW LAYOUT
                         </button>
                     </div>
                 </div>

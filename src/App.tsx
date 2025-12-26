@@ -13,7 +13,9 @@ import { useMobile } from './hooks/useMobile';
 import './index.css';
 
 function App() {
-  const { isMobile, orientation } = useMobile();
+  const { isMobile, isLandscape } = useMobile();
+  const [initialLayoutSet, setInitialLayoutSet] = useState(false);
+
   const {
     gameState,
     freeTiles,
@@ -28,7 +30,15 @@ function App() {
     lastMatch,
     zoomLevel,
     setZoomLevel,
-  } = useGameState('turtle');
+  } = useGameState(isMobile ? 'flat' : 'turtle');
+
+  // Auto-switch to mobile layout on first load if on mobile
+  useEffect(() => {
+    if (isMobile && !initialLayoutSet) {
+      newGame('flat');
+      setInitialLayoutSet(true);
+    }
+  }, [isMobile, initialLayoutSet, newGame]);
 
   const {
     statistics,
@@ -103,7 +113,7 @@ function App() {
 
   return (
     <div
-      className={`app min-h-screen flex flex-col pt-16 pb-20 ${screenShake ? 'screen-shake' : ''} ${isMobile ? 'mobile-mode' : ''} ${orientation}`}
+      className={`app min-h-screen flex flex-col pt-16 pb-20 ${screenShake ? 'screen-shake' : ''} ${isMobile ? 'mobile-mode' : ''} ${isLandscape ? 'landscape' : 'portrait'}`}
       style={{
         // Screen shake animation
         animation: screenShake ? 'shake 0.2s ease-in-out' : 'none',
