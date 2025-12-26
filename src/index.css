@@ -416,18 +416,18 @@ body::after {
   padding-bottom: max(env(safe-area-inset-bottom), 16px);
 }
 
-/* Stats display - Premium glass panel */
+/* Stats display - Premium solid panel (no blur for clear text) */
 .stats-panel {
   display: flex;
   align-items: center;
   gap: 1.25rem;
   padding: 0.75rem 1.25rem;
   border-radius: 1rem;
-  background: linear-gradient(145deg, rgba(26, 47, 79, 0.6) 0%, rgba(17, 34, 64, 0.8) 100%);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(145deg, rgba(17, 34, 64, 0.95) 0%, rgba(10, 22, 40, 0.98) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
+
 
 .stat-item {
   display: flex;

@@ -48,8 +48,8 @@ export const ComboDisplay: React.FC<ComboDisplayProps> = ({ combo, score, lastMa
 
     return (
         <>
-            {/* Prestige Score display */}
-            <div className="fixed top-12 right-6 z-50 text-right">
+            {/* Prestige Score display - non-interactive overlay */}
+            <div className="fixed top-12 right-6 z-40 text-right pointer-events-none">
                 <div className="text-[10px] text-white/40 uppercase tracking-[0.3em] font-bold mb-1">BOUTIQUE SCORE</div>
                 <div
                     className="text-4xl font-black italic tracking-tighter tabular-nums"
@@ -78,6 +78,7 @@ export const ComboDisplay: React.FC<ComboDisplayProps> = ({ combo, score, lastMa
                     </div>
                 )}
             </div>
+
 
             {/* Prestige Combo display */}
             {displayCombo >= 2 && (

@@ -186,15 +186,16 @@ function assignSolvableTypes(positions: { x: number; y: number; z: number }[], a
         [matchingPairs[i], matchingPairs[j]] = [matchingPairs[j], matchingPairs[i]];
     }
 
-    // Helper: calculate distance between positions
+    // Helper: calculate distance between positions (weight Y more to avoid same-row)
     const getDistance = (p1: { x: number; y: number; z: number }, p2: { x: number; y: number; z: number }) => {
         const dx = p1.x - p2.x;
-        const dy = p1.y - p2.y;
-        return Math.sqrt(dx * dx + dy * dy); // 2D distance (same layer proximity matters most)
+        const dy = (p1.y - p2.y) * 1.5; // Weight Y distance more - prevents same-row matches
+        return Math.sqrt(dx * dx + dy * dy);
     };
 
-    // Minimum distance for matching pairs - prevents adjacent matches
-    const MIN_DISTANCE = 2.5;
+    // Minimum distance for matching pairs - prevents adjacent AND same-row matches
+    const MIN_DISTANCE = 4.0;
+
 
     for (const [type1, type2] of matchingPairs) {
         const placeablePositions = availablePositions.filter(pos =>
