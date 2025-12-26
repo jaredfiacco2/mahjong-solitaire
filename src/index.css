@@ -747,6 +747,13 @@ body::after {
   max-width: 100vw;
 }
 
+@media (min-width: 1024px) {
+  .board-container {
+    padding-top: 120px;
+    /* Safe zone for fixed HUD stats on desktop */
+  }
+}
+
 .board-wrapper {
   position: relative;
   transform-origin: center center;

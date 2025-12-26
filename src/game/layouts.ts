@@ -628,48 +628,121 @@ function generateTowerPositions(): LayoutPosition[] {
     return positions.slice(0, 144);
 }
 
-// Imperial Monolith - The ultimate mobile portrait layout
-// 4 tiles wide for maximum touch accuracy and vertical fit
+// Imperial Monolith - Legacy mobile layout
 const monolithLayout: Layout = {
     id: 'monolith',
-    name: 'Imperial Monolith',
-    description: 'Perfect 4-wide vertical tower for mobile portrait play',
-    positions: generateMonolithPositions(),
+    name: 'Imperial Monolith (Legacy)',
+    description: 'Simplistic 4-wide vertical tower',
+    positions: generateFlatPositions().slice(0, 144), // Using flat as base for legacy
 };
 
-function generateMonolithPositions(): LayoutPosition[] {
+// Imperial Butterfly - Authentic mobile-first symmetrical layout
+// 10 tiles wide (max for mobile 320px) with elegant vertical layering
+const butterflyLayout: Layout = {
+    id: 'butterfly',
+    name: 'Imperial Butterfly',
+    description: 'Symmetrical winged layout optimized for mobile portrait',
+    positions: generateButterflyPositions(),
+};
+
+function generateButterflyPositions(): LayoutPosition[] {
     const positions: LayoutPosition[] = [];
 
-    // Layer 0 - 4x14 base (56 tiles)
-    for (let y = 0; y < 14; y++) {
-        for (let x = 0; x < 4; x++) {
-            positions.push({ x: x + 7, y: y + 1, z: 0 });
+    // Layer 0 - The Wings (10 tiles wide at tips, tapered)
+    for (let y = 0; y < 12; y++) {
+        // Center spine (2 tiles wide)
+        positions.push({ x: 8.5, y, z: 0 });
+        positions.push({ x: 9.5, y, z: 0 });
+
+        // Wings (tapered)
+        if (y >= 2 && y <= 9) {
+            positions.push({ x: 7.5, y, z: 0 });
+            positions.push({ x: 10.5, y, z: 0 });
+        }
+        if (y >= 4 && y <= 7) {
+            positions.push({ x: 6.5, y, z: 0 });
+            positions.push({ x: 11.5, y, z: 0 });
         }
     }
 
-    // Layer 1 - 4x10 centered (40 tiles)
-    for (let y = 2; y < 12; y++) {
-        for (let x = 0; x < 4; x++) {
-            positions.push({ x: x + 7, y: y + 1, z: 1 });
+    // Layer 1 - Inner Wings
+    for (let y = 3; y < 9; y++) {
+        positions.push({ x: 8.5, y, z: 1 });
+        positions.push({ x: 9.5, y, z: 1 });
+        positions.push({ x: 7.5, y, z: 1 });
+        positions.push({ x: 10.5, y, z: 1 });
+    }
+
+    // Layer 2 - Central Diamond
+    for (let y = 4; y < 8; y++) {
+        const width = y === 4 || y === 7 ? 2 : 4;
+        const startX = 9 - (width / 2);
+        for (let x = 0; x < width; x++) {
+            positions.push({ x: startX + x, y, z: 2 });
         }
     }
 
-    // Layer 2 - 4x8 centered (32 tiles)
-    for (let y = 3; y < 11; y++) {
-        for (let x = 0; x < 4; x++) {
-            positions.push({ x: x + 7, y: y + 1, z: 2 });
-        }
-    }
-
-    // Layer 3 - 4x4 top (16 tiles)
-    for (let y = 5; y < 9; y++) {
-        for (let x = 0; x < 4; x++) {
-            positions.push({ x: x + 7, y: y + 1, z: 3 });
-        }
+    // Layer 3+ to reach 144
+    let z = 3;
+    while (positions.length < 144) {
+        positions.push({ x: 8.5, y: 5, z });
+        positions.push({ x: 9.5, y: 5, z });
+        positions.push({ x: 8.5, y: 6, z });
+        positions.push({ x: 9.5, y: 6, z });
+        z++;
+        if (z > 10) break; // Safety
     }
 
     return positions.slice(0, 144);
 }
+
+// Traditional Jewel - Dense diamond structure for mobile
+const jewelLayout: Layout = {
+    id: 'jewel',
+    name: 'The Jewel',
+    description: 'A dense, multi-layered diamond for focused play',
+    positions: generateJewelPositions(),
+};
+
+function generateJewelPositions(): LayoutPosition[] {
+    const positions: LayoutPosition[] = [];
+
+    // Layer 0 - Large Diamond (8x8ish)
+    for (let y = 2; y < 12; y++) {
+        const distFromCenter = Math.abs(y - 6.5);
+        const width = Math.max(2, 8 - Math.floor(distFromCenter * 2));
+        const startX = 9 - (width / 2);
+        for (let x = 0; x < width; x++) {
+            positions.push({ x: startX + x, y, z: 0 });
+        }
+    }
+
+    // Layer 1 - Smaller Diamond
+    for (let y = 4; y < 10; y++) {
+        const distFromCenter = Math.abs(y - 6.5);
+        const width = Math.max(2, 6 - Math.floor(distFromCenter * 2));
+        const startX = 9 - (width / 2);
+        for (let x = 0; x < width; x++) {
+            positions.push({ x: startX + x, y, z: 1 });
+        }
+    }
+
+    // Layer 2 - Core
+    for (let y = 5; y < 8; y++) {
+        for (let x = 8; x < 11; x++) {
+            positions.push({ x, y, z: 2 });
+        }
+    }
+
+    // Top spike
+    while (positions.length < 144) {
+        positions.push({ x: 9, y: 6, z: positions.length % 20 + 3 });
+    }
+
+    return positions.slice(0, 144);
+}
+
+// Simple layout - mobile-friendly, only 2 layers
 
 // Zen Pillar - High-spaced mobile layout for relaxed play
 const zenPillarLayout: Layout = {
@@ -801,10 +874,9 @@ function generateLargePositions(): LayoutPosition[] {
 
 // All available layouts
 export const LAYOUTS: Layout[] = [
-    monolithLayout,
-    zenPillarLayout,
+    butterflyLayout,
+    jewelLayout,
     turtleLayout,
-    imperialTowerLayout,
     largeLayout,
     flatLayout,
     simpleLayout,
@@ -817,6 +889,9 @@ export const LAYOUTS: Layout[] = [
     diamondLayout,
     templeLayout,
     scatterLayout,
+    monolithLayout,
+    zenPillarLayout,
+    imperialTowerLayout,
 ];
 
 export function getLayoutById(id: string): Layout | undefined {

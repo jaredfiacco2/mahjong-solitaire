@@ -41,12 +41,12 @@ function App() {
     lastMatch,
     zoomLevel,
     setZoomLevel,
-  } = useGameState(isMobile ? 'monolith' : 'turtle');
+  } = useGameState(isMobile ? 'butterfly' : 'turtle');
 
   // Auto-switch to mobile layout on first load if on mobile
   useEffect(() => {
     if (isMobile && !initialLayoutSet) {
-      newGame('monolith');
+      newGame('butterfly');
       setInitialLayoutSet(true);
     }
   }, [isMobile, initialLayoutSet, newGame]);
@@ -263,10 +263,10 @@ function App() {
             <h2 className="text-xl font-bold mb-4 text-center">Select Layout</h2>
             <div className="space-y-2">
               {[
-                { id: 'monolith', name: 'Imperial Monolith' },
-                { id: 'pillar', name: 'Zen Pillar' },
+                { id: 'butterfly', name: 'Imperial Butterfly' },
+                { id: 'jewel', name: 'The Jewel' },
                 { id: 'turtle', name: 'Turtle' },
-                { id: 'tower', name: 'Imperial Tower (Mobile)' },
+                { id: 'pyramid', name: 'Pyramid' },
                 { id: 'large', name: 'Large (Easy View)' },
                 { id: 'flat', name: 'Flat (Mobile)' },
                 { id: 'simple', name: 'Simple (Mobile)' },
