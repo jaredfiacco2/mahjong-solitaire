@@ -241,10 +241,11 @@ export const Controls: React.FC<ControlsProps> = ({
                             {/* Menu - Responsive Logic (Bottom-sheet on mobile, Pop-over on desktop) */}
                             <div className="layout-drawer fixed bottom-0 left-0 right-0 sm:absolute sm:bottom-full sm:mb-3 sm:left-1/2 sm:-translate-x-1/2 p-4 sm:p-2 rounded-t-[32px] sm:rounded-2xl z-50 min-w-[200px] max-h-[80vh] overflow-y-auto animate-in slide-in-from-bottom duration-400 cubic-bezier(0.2, 0.8, 0.2, 1)"
                                 style={{
-                                    background: 'var(--color-bg-secondary)',
+                                    background: 'linear-gradient(145deg, rgba(17, 34, 64, 0.98) 0%, rgba(10, 22, 40, 0.99) 100%)',
                                     border: '1px solid rgba(197, 160, 89, 0.3)',
-                                    boxShadow: '0 -15px 40px rgba(0, 0, 0, 0.5)',
+                                    boxShadow: '0 -15px 40px rgba(0, 0, 0, 0.7)',
                                 }}>
+
                                 <div className="flex items-center justify-between px-3 py-2 border-b border-white/5 mb-2">
                                     <div className="text-xs text-[var(--color-text-muted)] uppercase tracking-widest font-bold">
                                         Imperial Layouts

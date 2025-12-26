@@ -39,17 +39,17 @@ function App() {
     currentLayout,
     elapsedTime,
     lastMatch,
-    zoomLevel,
-    setZoomLevel,
+    zoomLevel, // Used for Board scaling
   } = useGameState('turtle');
 
   // Auto-switch to mobile layout on first load if on mobile
   useEffect(() => {
     if (isMobile && !initialLayoutSet) {
-      newGame('tower'); // Imperial Tower - 6 tiles wide, portrait-optimized
+      newGame('mobile-pyramid'); // Classic pyramid - big tiles, heavily stacked
       setInitialLayoutSet(true);
     }
   }, [isMobile, initialLayoutSet, newGame]);
+
 
 
   const {
@@ -61,7 +61,6 @@ function App() {
 
   const [showStats, setShowStats] = useState(false);
   const [showLayoutSelector, setShowLayoutSelector] = useState(false);
-  const [showZoomControls, setShowZoomControls] = useState(false);
   const [gameStarted, setGameStarted] = useState(false);
   const [screenShake, setScreenShake] = useState(false);
   const boardContainerRef = useRef<HTMLDivElement>(null);
@@ -148,48 +147,9 @@ function App() {
         onComplete={() => setParticleTrigger(null)}
       />
 
-      {/* Zoom controls - Fixed top-left */}
-      <div className="fixed top-16 left-4 z-50 flex flex-col gap-2">
-        <button
-          className="game-button game-button-icon w-10 h-10 text-sm font-bold"
-          onClick={() => setShowZoomControls(!showZoomControls)}
-          title="Zoom controls"
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <circle cx="11" cy="11" r="8" />
-            <path d="M21 21l-4.35-4.35" />
-          </svg>
-        </button>
 
-        {showZoomControls && (
-          <div className="flex flex-col gap-1 p-2 rounded-xl"
-            style={{
-              background: 'linear-gradient(145deg, rgba(26, 47, 79, 0.95) 0%, rgba(17, 34, 64, 0.98) 100%)',
-              backdropFilter: 'blur(12px)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
-            }}>
-            <button
-              className="game-button w-10 h-10 text-xl"
-              onClick={() => setZoomLevel(zoomLevel + 0.2)}
-              disabled={zoomLevel >= 2}
-              title="Zoom in"
-            >
-              +
-            </button>
-            <div className="text-center text-sm text-[var(--color-text-muted)]">
-              {Math.round(zoomLevel * 100)}%
-            </div>
-            <button
-              className="game-button w-10 h-10 text-xl"
-              onClick={() => setZoomLevel(zoomLevel - 0.2)}
-              disabled={zoomLevel <= 0.5}
-              title="Zoom out"
-            >
-              −
-            </button>
-          </div>
-        )}
-      </div>
+      {/* Native pinch-zoom is enabled via CSS - no custom zoom UI needed */}
+
 
       <main
         ref={boardContainerRef}
@@ -264,12 +224,14 @@ function App() {
             <h2 className="text-xl font-bold mb-4 text-center">Select Layout</h2>
             <div className="space-y-2">
               {[
+                { id: 'mobile-pyramid', name: 'Mobile Pyramid' },
                 { id: 'tower', name: 'Imperial Tower (Mobile)' },
                 { id: 'flat', name: 'Flat (Mobile)' },
                 { id: 'simple', name: 'Simple' },
                 { id: 'turtle', name: 'Turtle (Classic)' },
                 { id: 'large', name: 'Large (Easy View)' },
                 { id: 'pyramid', name: 'Pyramid' },
+
                 { id: 'dragon', name: 'Dragon' },
                 { id: 'fortress', name: 'Fortress' },
                 { id: 'bridge', name: 'Bridge' },

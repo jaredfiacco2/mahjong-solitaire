@@ -186,6 +186,14 @@ function assignSolvableTypes(positions: { x: number; y: number; z: number }[], a
         [matchingPairs[i], matchingPairs[j]] = [matchingPairs[j], matchingPairs[i]];
     }
 
+    // Helper function to calculate distance between positions
+    const getDistance = (p1: { x: number; y: number; z: number }, p2: { x: number; y: number; z: number }) => {
+        const dx = p1.x - p2.x;
+        const dy = p1.y - p2.y;
+        const dz = (p1.z - p2.z) * 2; // Weight z difference higher to spread across layers
+        return Math.sqrt(dx * dx + dy * dy + dz * dz);
+    };
+
     for (const [type1, type2] of matchingPairs) {
         const placeablePositions = availablePositions.filter(pos =>
             isPositionAvailable(pos, occupiedPositions)
@@ -193,12 +201,22 @@ function assignSolvableTypes(positions: { x: number; y: number; z: number }[], a
 
         if (placeablePositions.length < 2) return null; // Stuck
 
+        // Pick first position randomly
         const idx1 = Math.floor(Math.random() * placeablePositions.length);
         const pos1 = placeablePositions[idx1];
         placeablePositions.splice(idx1, 1);
 
-        const idx2 = Math.floor(Math.random() * placeablePositions.length);
-        const pos2 = placeablePositions[idx2];
+        // Pick second position to MAXIMIZE distance from first (makes game harder)
+        let bestIdx2 = 0;
+        let maxDistance = 0;
+        for (let i = 0; i < placeablePositions.length; i++) {
+            const dist = getDistance(pos1, placeablePositions[i]);
+            if (dist > maxDistance) {
+                maxDistance = dist;
+                bestIdx2 = i;
+            }
+        }
+        const pos2 = placeablePositions[bestIdx2];
 
         finalTiles.push({ id: generateTileId(), typeId: type1.id, ...pos1, isRemoved: false });
         finalTiles.push({ id: generateTileId(), typeId: type2.id, ...pos2, isRemoved: false });
@@ -266,7 +284,7 @@ export function generateBoard(layout: Layout): GameBoard {
 }
 
 /**
- * Shuffle remaining tiles on the board, ensuring it remains solvable
+ * Shuffle remaining tiles on the board - uses simple random redistribution
  */
 export function shuffleBoard(board: GameBoard): GameBoard {
     const activeTiles = board.tiles.filter(t => !t.isRemoved);
@@ -275,24 +293,26 @@ export function shuffleBoard(board: GameBoard): GameBoard {
     const positions = activeTiles.map(t => ({ x: t.x, y: t.y, z: t.z }));
     const types = activeTiles.map(t => getTileTypeById(t.typeId)).filter(Boolean) as TileType[];
 
-    let attempts = 0;
-    while (attempts < 50) {
-        attempts++;
-        const newActiveTiles = assignSolvableTypes(positions, types);
-        if (newActiveTiles) {
-            return {
-                ...board,
-                tiles: [...newActiveTiles, ...removedTiles],
-            };
-        }
+    // Shuffle types array
+    for (let i = types.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [types[i], types[j]] = [types[j], types[i]];
     }
 
-    const basicTiles = assignSolvableTypes(positions, types) || [];
+    // Simply reassign types to positions randomly
+    const newActiveTiles: TileInstance[] = positions.map((pos, i) => ({
+        id: generateTileId(),
+        typeId: types[i].id,
+        ...pos,
+        isRemoved: false,
+    }));
+
     return {
         ...board,
-        tiles: [...basicTiles, ...removedTiles],
+        tiles: [...newActiveTiles, ...removedTiles],
     };
 }
+
 
 /**
  * Remove a matched pair of tiles
